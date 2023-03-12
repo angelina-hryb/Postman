@@ -1,6 +1,7 @@
 <details>
-  <summary>Click me HW1</summary>
-  ## Postman HW 1:
+  <summary>Click on homework 1</summary>
+  
+## Postman HW 1:
 ___
 + Создать запросы в Postman:\
 Protocol: http IP: 162.55.220.72 Port: 5005\
@@ -115,6 +116,5 @@ salary: int\
                      'u_age': age,\
                      'u_salary_5_years': salary * 4.2}
           }
-___
- 
+___ 
 </details>
