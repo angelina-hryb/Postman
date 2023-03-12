@@ -121,7 +121,7 @@ ___
 
 
 <details>
-  <summary>Click on homework condition </summary>
+  <summary>Click on homework condition 2</summary>
   
 1️⃣ http://162.55.220.72:5005/first\
 1. Отправить запрос\
