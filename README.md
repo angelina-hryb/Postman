@@ -1,4 +1,6 @@
-## Postman HW 1:
+<details>
+  <summary>Click me HW1</summary>
+  ## Postman HW 1:
 ___
 + Создать запросы в Postman:\
 Protocol: http IP: 162.55.220.72 Port: 5005\
@@ -114,5 +116,5 @@ salary: int\
                      'u_salary_5_years': salary * 4.2}
           }
 ___
-
-
+ 
+</details>
