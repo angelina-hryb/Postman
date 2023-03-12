@@ -1,5 +1,5 @@
 <details>
-  <summary>Click on homework 1</summary>
+  <summary>Click on homework condition 1</summary>
   
 ## Postman HW 1:
 ___
