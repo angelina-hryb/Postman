@@ -209,7 +209,7 @@ ___
   
                                                                     1️⃣  
   
-1) необходимо залогиниться    
++1) необходимо залогиниться    
 POST  
 http://162.55.220.72:5005/login  
 login : str (кроме /)  
@@ -219,7 +219,7 @@ password : str
 ___
                                                                     2️⃣  
   
-2) http://162.55.220.72:5005/user_info  
++2) http://162.55.220.72:5005/user_info  
 req. (RAW JSON)  
 POST  
 age: int  
@@ -243,7 +243,7 @@ resp:
 ___
                                                                     3️⃣  
   
-3) http://162.55.220.72:5005/new_data  
++3) http://162.55.220.72:5005/new_data  
 req.  
 POST  
 age: int  
@@ -264,7 +264,7 @@ Resp.
 ___
                                                                     4️⃣  
   
-4) http://162.55.220.72:5005/test_pet_info  
++4) http://162.55.220.72:5005/test_pet_info  
 req.  
 POST  
 age: int  
@@ -285,7 +285,7 @@ Resp.
 ___
                                                                   5️⃣  
   
-5) http://162.55.220.72:5005/get_test_user  
++5) http://162.55.220.72:5005/get_test_user  
 req.  
 POST  
 age: int  
@@ -309,7 +309,7 @@ Resp.
 ___
                                                                 6️⃣  
   
-6) http://162.55.220.72:5005/currency  
++6) http://162.55.220.72:5005/currency  
 req.  
 POST  
 auth_token  
@@ -334,7 +334,7 @@ Resp. Передаётся список массив объектов.
  ___
                                                               7️⃣  
   
-7) http://162.55.220.72:5005/curr_byn  
++7) http://162.55.220.72:5005/curr_byn  
 req.  
 POST  
 auth_token  
