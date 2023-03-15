@@ -1,0 +1,791 @@
+{
+	"info": {
+		"_postman_id": "93d45d92-a4c8-4e43-8c1e-27503826c82e",
+		"name": "HW 3",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "26168795"
+	},
+	"item": [
+		{
+			"name": "login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json(); //спарсили ответ сервера\r",
+							"var resp_token = jsonData.token //из json вытащили значение по ключу\r",
+							"console.log(resp_token)\r",
+							"//сетнуть переменную в окружение\r",
+							"pm.environment.set(\"token\", resp_token);//сначала в ковычках пишем значение из окружения, потом нашу переменную"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "login",
+							"value": "angelina",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "1122aabb",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{url}}/login",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "user_info",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//1) Статус код 200\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"var resp = pm.response.json();\r",
+							"var req_raw_json = JSON.parse(pm.request.body.raw);\r",
+							"var req_salary = req_raw_json.salary;\r",
+							"var req_name = req_raw_json.name;\r",
+							"var req_age = req_raw_json.age;\r",
+							"console.log (req_salary,req_name,req_age)\r",
+							"//2) Проверка структуры json в ответе.\r",
+							"const schema = {\r",
+							"    \"type\": \"object\",\r",
+							"    \"default\": {},\r",
+							"    \"title\": \"Root Schema\",\r",
+							"    \"required\": [\r",
+							"        \"person\",\r",
+							"        \"qa_salary_after_12_months\",\r",
+							"        \"qa_salary_after_6_months\",\r",
+							"        \"start_qa_salary\"\r",
+							"    ],\r",
+							"    \"properties\": {\r",
+							"        \"person\": {\r",
+							"            \"type\": \"object\",\r",
+							"            \"default\": {},\r",
+							"            \"required\": [\r",
+							"                \"u_age\",\r",
+							"                \"u_name\",\r",
+							"                \"u_salary_1_5_year\"\r",
+							"            ],\r",
+							"            \"properties\": {\r",
+							"                \"u_age\": {\r",
+							"                    \"type\": \"integer\",\r",
+							"                    \"default\": 0\r",
+							"                },\r",
+							"                \"u_name\": {\r",
+							"                    \"type\": \"array\",\r",
+							"                    \"default\": [],\r",
+							"                    \"items\": {\r",
+							"                        \"anyOf\": [{\r",
+							"                            \"type\": \"string\",\r",
+							"                            \"default\": \"\"\r",
+							"                        },\r",
+							"                        {\r",
+							"                            \"type\": \"integer\"\r",
+							"                        }]\r",
+							"                    }\r",
+							"                },\r",
+							"                \"u_salary_1_5_year\": {\r",
+							"                    \"type\": \"integer\",\r",
+							"                    \"default\": 0,\r",
+							"                }\r",
+							"            },\r",
+							"            \"examples\": [{\r",
+							"                \"u_age\": 29,\r",
+							"                \"u_name\": [\r",
+							"                    \"Angelina\",\r",
+							"                    500,\r",
+							"                    29\r",
+							"                ],\r",
+							"                \"u_salary_1_5_year\": 2000\r",
+							"            }]\r",
+							"        },\r",
+							"        \"qa_salary_after_12_months\": {\r",
+							"            \"type\": \"number\",\r",
+							"            \"default\": 0.0\r",
+							"        },\r",
+							"        \"qa_salary_after_6_months\": {\r",
+							"            \"type\": \"integer\",\r",
+							"            \"default\": 0\r",
+							"        },\r",
+							"        \"start_qa_salary\": {\r",
+							"            \"type\": \"integer\",\r",
+							"            \"default\": 0\r",
+							"        }\r",
+							"    },\r",
+							"    \"examples\": [{\r",
+							"        \"person\": {\r",
+							"            \"u_age\": 29,\r",
+							"            \"u_name\": [\r",
+							"                \"Angelina\",\r",
+							"                500,\r",
+							"                29\r",
+							"            ],\r",
+							"            \"u_salary_1_5_year\": 2000\r",
+							"        },\r",
+							"        \"qa_salary_after_12_months\": 1450.0,\r",
+							"        \"qa_salary_after_6_months\": 1000,\r",
+							"        \"start_qa_salary\": 500\r",
+							"    }]\r",
+							"};\r",
+							"pm.test(\"Validate JSON schema\", () => {\r",
+							"    pm.response.to.have.jsonSchema(schema);\r",
+							"});\r",
+							"//3) В ответе указаны коэффициенты умножения salary, напишите тесты по проверке правильности результата перемножения на коэффициент.\r",
+							"var resp_u_salary_1_5_year = resp.person.u_salary_1_5_year;\r",
+							"console.log (resp_u_salary_1_5_year)\r",
+							"pm.test(\"resp_u_salary_1_5_year= req_salary*4\", function () {\r",
+							"    pm.expect(resp_u_salary_1_5_year).to.eql(req_salary*4);\r",
+							"});\r",
+							"var resp_qa_salary_after_12_months = resp.qa_salary_after_12_months;\r",
+							"console.log (resp_qa_salary_after_12_months)\r",
+							"pm.test(\"resp_qa_salary_after_12_months= req_salary*2.9\", function () {\r",
+							"    pm.expect(resp_qa_salary_after_12_months).to.eql(req_salary*2.9);\r",
+							"});\r",
+							"var resp_qa_salary_after_6_months = resp.qa_salary_after_6_months;\r",
+							"console.log (resp_qa_salary_after_6_months)\r",
+							"pm.test(\"resp_qa_salary_after_6_months= req_salary*2\", function () {\r",
+							"    pm.expect(resp_qa_salary_after_6_months).to.eql(req_salary*2);\r",
+							"});\r",
+							"var resp_start_qa_salary = resp.start_qa_salary;\r",
+							"console.log (resp_start_qa_salary)\r",
+							"pm.test(\"resp_start_qa_salary= req_salary\", function () {\r",
+							"    pm.expect(resp_start_qa_salary).to.eql(req_salary);\r",
+							"});\r",
+							"//4) Достать значение из поля 'u_salary_1.5_year' и передать в поле salary запроса http://162.55.220.72:5005/get_test_user\r",
+							"var jsonData = JSON.parse(resp.person.u_salary_1_5_year)\r",
+							"postman.setEnvironmentVariable(\"salary2\", jsonData);\r",
+							"// var resp_is_person_u_salary_1_5_year = \"u_salary_1_5_year\" in resp.person;\r",
+							"// var resp_u_salary_1_5_year2 = resp_is_person_u_salary_1_5_year ? resp_u_salary_1_5_year : undefined;\r",
+							"// pm.environment.set(\"salary2\", resp_u_salary_1_5_year2);\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\"age\": 29,\r\n\"salary\": 500,\r\n\"name\": \"Angelina\",\r\n\"auth_token\": \"{{token}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/user_info",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"user_info"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/get_test_user",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "salary",
+							"value": "{{salary2}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{url}}/get_test_user",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"get_test_user"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/new_data",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//1) Статус код 200\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"//2) Проверка структуры json в ответе.\r",
+							"var resp = pm.response.json();\r",
+							"var req = request.data;\r",
+							"const schema = {\r",
+							"    \"type\": \"object\",\r",
+							"    \"default\": {},\r",
+							"    \"title\": \"Root Schema\",\r",
+							"    \"required\": [\r",
+							"        \"age\",\r",
+							"        \"name\",\r",
+							"        \"salary\"\r",
+							"    ],\r",
+							"    \"properties\": {\r",
+							"        \"age\": {\r",
+							"            \"type\": \"integer\",\r",
+							"            \"default\": 0,\r",
+							"            \"title\": \"The age Schema\",\r",
+							"            \"examples\": [\r",
+							"                29\r",
+							"            ]\r",
+							"        },\r",
+							"        \"name\": {\r",
+							"            \"type\": \"string\",\r",
+							"            \"default\": \"\",\r",
+							"            \"title\": \"The name Schema\",\r",
+							"            \"examples\": [\r",
+							"                \"Angelina\"\r",
+							"            ]\r",
+							"        },\r",
+							"        \"salary\": {\r",
+							"            \"type\": \"array\",\r",
+							"            \"default\": [],\r",
+							"            \"title\": \"The salary Schema\",\r",
+							"            \"items\": {\r",
+							"                \"anyOf\": [{\r",
+							"                    \"type\": \"integer\",\r",
+							"                    \"default\": 0,\r",
+							"                    \"title\": \"A Schema\",\r",
+							"                    \"examples\": [\r",
+							"                        500\r",
+							"                    ]\r",
+							"                },\r",
+							"                {\r",
+							"                    \"type\": \"string\",\r",
+							"                    \"title\": \"A Schema\",\r",
+							"                    \"examples\": [\r",
+							"                        \"1000\",\r",
+							"                        \"1500\"\r",
+							"                    ]\r",
+							"                }]\r",
+							"            },\r",
+							"            \"examples\": [\r",
+							"                [500,\r",
+							"                    \"1000\",\r",
+							"                    \"1500\"\r",
+							"                ]\r",
+							"            ]\r",
+							"        }\r",
+							"    },\r",
+							"    \"examples\": [{\r",
+							"        \"age\": 29,\r",
+							"        \"name\": \"Angelina\",\r",
+							"        \"salary\": [\r",
+							"            500,\r",
+							"            \"1000\",\r",
+							"            \"1500\"\r",
+							"        ]\r",
+							"    }]\r",
+							"}\r",
+							"pm.test(\"Validate JSON schema\", () => {\r",
+							"    pm.response.to.have.jsonSchema(schema);\r",
+							"});\r",
+							"//3) В ответе указаны коэффициенты умножения salary, напишите тесты по проверке правильности результата перемножения на коэффициент.\r",
+							"req_salary=req.salary\r",
+							"var resp_salary0 = resp.salary[0];\r",
+							"console.log (resp_salary0)\r",
+							"pm.test(\"resp_salary0= req.salary\", function () {\r",
+							"    pm.expect(+resp_salary0).to.eql(+req_salary);\r",
+							"});\r",
+							"\r",
+							"var resp_salary1 = resp.salary[1];\r",
+							"console.log (resp_salary1)\r",
+							"pm.test(\"resp_salary1= req.salary*2\", function () {\r",
+							"    pm.expect(+resp_salary1).to.eql(req_salary*2);\r",
+							"});\r",
+							"\r",
+							"var resp_salary2 = resp.salary[2];\r",
+							"console.log (resp_salary2)\r",
+							"pm.test(\"resp_salary2= req.salary*3\", function () {\r",
+							"    pm.expect(+resp_salary2).to.eql(req_salary*3);\r",
+							"});\r",
+							"//4) проверить, что 2-й элемент массива salary больше 1-го и 0-го\r",
+							"pm.test(\"salary2 > salary1 && salary0\", function () {\r",
+							"    const salCheck = resp_salary2 > resp_salary1 && resp_salary2 > resp_salary0\r",
+							"    pm.expect(salCheck).to.be.true\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "age",
+							"value": "{{age}}",
+							"type": "text"
+						},
+						{
+							"key": "name",
+							"value": "{{name}}",
+							"type": "text"
+						},
+						{
+							"key": "salary",
+							"value": "{{salary}}",
+							"type": "text"
+						},
+						{
+							"key": "auth_token",
+							"value": "{{token}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{url}}/new_data",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"new_data"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/test_pet_info",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//1) Статус код 200\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"//2) Проверка структуры json в ответе.\r",
+							"var resp = pm.response.json();\r",
+							"var req = request.data;\r",
+							"const schema= {\r",
+							"    \"type\": \"object\",\r",
+							"    \"default\": {},\r",
+							"    \"title\": \"Root Schema\",\r",
+							"    \"required\": [\r",
+							"        \"age\",\r",
+							"        \"daily_food\",\r",
+							"        \"daily_sleep\",\r",
+							"        \"name\"\r",
+							"    ],\r",
+							"    \"properties\": {\r",
+							"        \"age\": {\r",
+							"            \"type\": \"integer\",\r",
+							"            \"default\": 0,\r",
+							"            \"title\": \"The age Schema\",\r",
+							"            \"examples\": [\r",
+							"                29\r",
+							"            ]\r",
+							"        },\r",
+							"        \"daily_food\": {\r",
+							"            \"type\": \"number\",\r",
+							"            \"default\": 0.0,\r",
+							"            \"title\": \"The daily_food Schema\",\r",
+							"            \"examples\": [\r",
+							"                0.588\r",
+							"            ]\r",
+							"        },\r",
+							"        \"daily_sleep\": {\r",
+							"            \"type\": \"number\",\r",
+							"            \"default\": 0.0,\r",
+							"            \"title\": \"The daily_sleep Schema\",\r",
+							"            \"examples\": [\r",
+							"                122.5\r",
+							"            ]\r",
+							"        },\r",
+							"        \"name\": {\r",
+							"            \"type\": \"string\",\r",
+							"            \"default\": \"\",\r",
+							"            \"title\": \"The name Schema\",\r",
+							"            \"examples\": [\r",
+							"                \"Angelina\"\r",
+							"            ]\r",
+							"        }\r",
+							"    },\r",
+							"    \"examples\": [{\r",
+							"        \"age\": 29,\r",
+							"        \"daily_food\": 0.588,\r",
+							"        \"daily_sleep\": 122.5,\r",
+							"        \"name\": \"Angelina\"\r",
+							"    }]\r",
+							"}\r",
+							"pm.test(\"Validation schema\", () => {\r",
+							"     pm.response.to.have.jsonSchema(schema);\r",
+							"});\r",
+							"//3) В ответе указаны коэффициенты умножения weight, напишите тесты по проверке правильности результата перемножения на коэффициент.'daily_food':weight * 0.012,'daily_sleep': weight * 2.5}\r",
+							"var resp_daily_food = resp.daily_food;\r",
+							"console.log (resp_daily_food)\r",
+							"pm.test(\"resp_daily_sleep= req.weight*2.5\", function () {\r",
+							"    pm.expect(resp_daily_sleep).to.eql(req.weight*2.5);\r",
+							"});\r",
+							"\r",
+							"var resp_daily_sleep = resp.daily_sleep;\r",
+							"console.log (resp_daily_sleep)\r",
+							"pm.test(\"resp_daily_food= req.weight*0.012\", function () {\r",
+							"    pm.expect(resp_daily_food).to.eql(req.weight*0.012);\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "age",
+							"value": "{{age}}",
+							"type": "text"
+						},
+						{
+							"key": "weight",
+							"value": "49",
+							"type": "text"
+						},
+						{
+							"key": "name",
+							"value": "{{name}}",
+							"type": "text"
+						},
+						{
+							"key": "auth_token",
+							"value": "{{token}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{url}}/test_pet_info",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"test_pet_info"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/get_test_user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//1) Статус код 200\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"//2) Проверка структуры json в ответе.\r",
+							"const schema = {\r",
+							"    \"type\": \"object\",\r",
+							"    \"default\": {},\r",
+							"    \"title\": \"Root Schema\",\r",
+							"    \"required\": [\r",
+							"        \"age\",\r",
+							"        \"family\",\r",
+							"        \"name\",\r",
+							"        \"salary\"\r",
+							"    ],\r",
+							"    \"properties\": {\r",
+							"        \"age\": {\r",
+							"            \"type\": \"string\",\r",
+							"            \"default\": \"\",\r",
+							"            \"title\": \"The age Schema\",\r",
+							"            \"examples\": [\r",
+							"                \"29\"\r",
+							"            ]\r",
+							"        },\r",
+							"        \"family\": {\r",
+							"            \"type\": \"object\",\r",
+							"            \"default\": {},\r",
+							"            \"title\": \"The family Schema\",\r",
+							"            \"required\": [\r",
+							"                \"children\",\r",
+							"                \"u_salary_1_5_year\"\r",
+							"            ],\r",
+							"            \"properties\": {\r",
+							"                \"children\": {\r",
+							"                    \"type\": \"array\",\r",
+							"                    \"default\": [],\r",
+							"                    \"title\": \"The children Schema\",\r",
+							"                    \"items\": {\r",
+							"                        \"type\": \"array\",\r",
+							"                        \"title\": \"A Schema\",\r",
+							"                        \"items\": {\r",
+							"                            \"anyOf\": [{\r",
+							"                                \"type\": \"string\",\r",
+							"                                \"title\": \"A Schema\",\r",
+							"                                \"examples\": [\r",
+							"                                    \"Alex\",\r",
+							"                                    \"Kate\"\r",
+							"                                ]\r",
+							"                            },\r",
+							"                            {\r",
+							"                                \"type\": \"integer\",\r",
+							"                                \"title\": \"A Schema\",\r",
+							"                                \"examples\": [\r",
+							"                                    24,\r",
+							"                                    12\r",
+							"                                ]\r",
+							"                            }]\r",
+							"                        },\r",
+							"                        \"examples\": [\r",
+							"                            [\"Alex\",\r",
+							"                                24\r",
+							"                            ],\r",
+							"                            [\"Kate\",\r",
+							"                                12\r",
+							"                            ]\r",
+							"                        ]\r",
+							"                    },\r",
+							"                    \"examples\": [\r",
+							"                        [\r",
+							"                            [\"Alex\",\r",
+							"                                24\r",
+							"                            ],\r",
+							"                            [\"Kate\",\r",
+							"                                12\r",
+							"                            ]\r",
+							"                        ]\r",
+							"                    ]\r",
+							"                },\r",
+							"                \"u_salary_1_5_year\": {\r",
+							"                    \"type\": \"integer\",\r",
+							"                    \"default\": 0,\r",
+							"                    \"title\": \"The u_salary_1_5_year Schema\",\r",
+							"                    \"examples\": [\r",
+							"                        2000\r",
+							"                    ]\r",
+							"                }\r",
+							"            },\r",
+							"            \"examples\": [{\r",
+							"                \"children\": [\r",
+							"                    [\"Alex\",\r",
+							"                        24\r",
+							"                    ],\r",
+							"                    [\"Kate\",\r",
+							"                        12\r",
+							"                    ]\r",
+							"                ],\r",
+							"                \"u_salary_1_5_year\": 2000\r",
+							"            }]\r",
+							"        },\r",
+							"        \"name\": {\r",
+							"            \"type\": \"string\",\r",
+							"            \"default\": \"\",\r",
+							"            \"title\": \"The name Schema\",\r",
+							"            \"examples\": [\r",
+							"                \"Angelina\"\r",
+							"            ]\r",
+							"        },\r",
+							"        \"salary\": {\r",
+							"            \"type\": \"integer\",\r",
+							"            \"default\": 0,\r",
+							"            \"title\": \"The salary Schema\",\r",
+							"            \"examples\": [\r",
+							"                500\r",
+							"            ]\r",
+							"        }\r",
+							"    },\r",
+							"    \"examples\": [{\r",
+							"        \"age\": \"29\",\r",
+							"        \"family\": {\r",
+							"            \"children\": [\r",
+							"                [\"Alex\",\r",
+							"                    24\r",
+							"                ],\r",
+							"                [\"Kate\",\r",
+							"                    12\r",
+							"                ]\r",
+							"            ],\r",
+							"            \"u_salary_1_5_year\": 2000\r",
+							"        },\r",
+							"        \"name\": \"Angelina\",\r",
+							"        \"salary\": 500\r",
+							"    }]\r",
+							"}\r",
+							"pm.test(\"Validation schema\", () => {\r",
+							"     pm.response.to.have.jsonSchema(schema);\r",
+							"});\r",
+							"//3) Проверить что значение поля name = значению переменной name из окружения\r",
+							"var resp = pm.response.json();\r",
+							"var req = request.data;\r",
+							"resp_name=resp.name\r",
+							"pm.test(\"resp.name=environment.name\", function () {\r",
+							"pm.expect(pm.environment.get(\"name\")).to.eql(resp_name);\r",
+							"});\r",
+							"//4) Проверить что значение поля age в ответе соответствует отправленному в запросе значению поля age\r",
+							"resp_age=resp.age\r",
+							"req_age=req.age\r",
+							"pm.test(\"resp age=req age\", function () {\r",
+							"    pm.expect(resp_age).to.eql(req_age);\r",
+							"});\r",
+							"console.log (resp.name)\r",
+							"console.log (environment.name)\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "age",
+							"value": "{{age}}",
+							"type": "text"
+						},
+						{
+							"key": "salary",
+							"value": "{{salary}}",
+							"type": "text"
+						},
+						{
+							"key": "name",
+							"value": "{{name}}",
+							"type": "text"
+						},
+						{
+							"key": "auth_token",
+							"value": "{{token}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{url}}/get_test_user",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"get_test_user"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/currency",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "auth_token",
+							"value": "{{token}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{url}}/currency?",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"currency"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": null
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/curr_byn",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "auth_token",
+							"value": "",
+							"type": "text"
+						},
+						{
+							"key": "curr_code",
+							"value": "",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{url}}//curr_byn",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"",
+						"curr_byn"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
