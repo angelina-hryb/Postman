@@ -121,12 +121,13 @@ salary: int\
 
 <details>
 <summary>Click on homework condition 2</summary>
- 1️⃣ http://162.55.220.72:5005/first
+  
+ 1️⃣ http://162.55.220.72:5005/first  
 1. Отправить запрос  
 2. Статус код 200  
-3. Проверить, что в body приходит правильный string\
+3. Проверить, что в body приходит правильный string  
 ___
- 2️⃣ http://162.55.220.72:5005/user_info_3
+ 2️⃣ http://162.55.220.72:5005/user_info_3  
 1. Отправить запрос.  
 2. Статус код 200  
 3. Спарсить response body в json.  
